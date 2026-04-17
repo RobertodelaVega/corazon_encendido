@@ -1,0 +1,292 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🔥 Fogata Quemadora - Drag & Drop 🔥</title>
+    <style>
+        * {
+            user-select: none;
+            box-sizing: border-box;
+        }
+
+
+body {
+     background-color: rgba(0, 0, 0, 0); 
+    margin: 0;
+    overflow: hidden; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+body {
+    background-color: rgba(0, 0, 0, 0); 
+}
+
+
+        /* FOGATA */
+        .fogata {
+            width: 340px;
+            height: 340px;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            transition: all 0.1s ease;
+            position: relative;
+            border-radius: 50%;
+        }
+
+        .fogata.drag-over {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 30px #ff8800);
+            cursor: grabbing;
+        }
+
+        /* Estilos para la imagen GIF */
+        .icono-fogata img {
+            width: 280px; 
+            height: auto;
+            filter: drop-shadow(0 8px 12px rgba(0,0,0,0.5));
+            transition: 0.2s;
+            pointer-events: none;
+        }
+
+        .fogata.drag-over .icono-fogata img {
+            filter: drop-shadow(0 0 20px #ffaa33) brightness(1.2);
+        }
+
+        .llama-duck {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            font-size: 0;
+            filter: blur(0.5px);
+            animation: subirYArder 0.7s ease-out forwards;
+        }
+
+        .fuego-llama {
+            display: inline-block;
+            font-size: 48px;
+            filter: drop-shadow(0 0 6px #ff4d00);
+            transform-origin: center bottom;
+        }
+
+        @keyframes subirYArder {
+            0% { opacity: 1; transform: translateY(0) scale(0.6) rotate(0deg); }
+            40% { opacity: 1; transform: translateY(-40px) scale(1.2) rotate(10deg); }
+            100% { opacity: 0; transform: translateY(-140px) scale(1.8) rotate(25deg); filter: blur(12px); }
+        }
+
+        .chispa {
+            position: fixed;
+            pointer-events: none;
+            z-index: 10000;
+            width: 6px;
+            height: 6px;
+            background: radial-gradient(circle, #ffaa33, #ff3300);
+            border-radius: 50%;
+            animation: explotarChispa 0.6s ease-out forwards;
+        }
+
+        @keyframes explotarChispa {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0) translateY(-80px); opacity: 0; }
+        }
+
+        .humo {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            background: radial-gradient(circle, #555, #1a1a1a);
+            border-radius: 50%;
+            filter: blur(12px);
+            opacity: 0.5;
+            animation: humear 1.2s ease-out forwards;
+        }
+
+        @keyframes humear {
+            0% { transform: scale(0.2); opacity: 0.7; }
+            100% { transform: scale(3); opacity: 0; }
+        }
+
+        .ceniza-msg {
+            position: fixed;
+            color: #ffaa55;
+            text-shadow: 0 0 5px black;
+            font-weight: bold;
+            font-size: 14px;
+            background: #1f1a0ecc;
+            padding: 4px 12px;
+            border-radius: 40px;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 10001;
+            backdrop-filter: blur(3px);
+            animation: flotarCeniza 0.9s ease-out forwards;
+        }
+
+        @keyframes flotarCeniza {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-90px); }
+        }
+
+        .creditos-ocultos {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            font-size: 10px;
+            color: #aa7733;
+            background: #00000066;
+            padding: 2px 8px;
+            border-radius: 20px;
+            pointer-events: none;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+
+<div class="fogata" id="fogataQuemadora">
+    <div class="icono-fogata">
+  
+<img src="https://media.tenor.com/xkQPkE1ck80AAAAi/heart-burning-heart.gif" alt="Fogata animada">
+
+<p>Arrastra el libro, documento, o mail aquí dentro. 
+<br>
+Se quema con el fuego de tu corazón. Es una forma de leer con el corazón. </p>
+
+    </div>
+</div>
+
+<div class="creditos-ocultos">🔥 arrastra archivos a la fogata → se queman 🔥</div>
+
+<script>
+    const fogata = document.getElementById('fogataQuemadora');
+
+    function prevenirDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => {
+        window.addEventListener(evt, prevenirDefaults);
+    });
+
+    fogata.addEventListener('dragenter', () => fogata.classList.add('drag-over'));
+    fogata.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        fogata.classList.add('drag-over');
+    });
+    fogata.addEventListener('dragleave', () => fogata.classList.remove('drag-over'));
+    
+    fogata.addEventListener('drop', (e) => {
+        e.preventDefault();
+        fogata.classList.remove('drag-over');
+        
+        const items = e.dataTransfer.items;
+        const archivos = [];
+        
+        if (items) {
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].kind === 'file') {
+                    archivos.push(items[i].getAsFile());
+                }
+            }
+        }
+        
+        if (archivos.length === 0) {
+            generarExplosionFuegoDuck();
+            return;
+        }
+        
+        archivos.forEach(file => {
+            const nombre = file.name;
+            const cantidadLlamas = 15 + Math.floor(Math.random() * 10);
+            for (let j = 0; j < cantidadLlamas; j++) {
+                generarLlamaDuck(fogata, nombre);
+            }
+            generarChispasMultiples(fogata, 25);
+            generarHumoDenso(fogata, 10);
+            mostrarMensajeCeniza(nombre);
+        });
+        
+        if (navigator.vibrate) navigator.vibrate(100);
+    });
+    
+    function generarLlamaDuck(elemento) {
+        const rect = elemento.getBoundingClientRect();
+        const randX = rect.left + Math.random() * rect.width;
+        const randY = rect.top + Math.random() * rect.height * 0.5 + rect.height * 0.2;
+        
+        const llamaDiv = document.createElement('div');
+        llamaDiv.className = 'llama-duck';
+        const fuegos = ['🔥', '🔥', '💥', '🌋', '⚡', '🌀'];
+        const simbolo = fuegos[Math.floor(Math.random() * fuegos.length)];
+        
+        llamaDiv.innerHTML = `<span class="fuego-llama">${simbolo}</span>`;
+        llamaDiv.style.left = `${randX - 20}px`;
+        llamaDiv.style.top = `${randY - 20}px`;
+        llamaDiv.style.fontSize = `${30 + Math.random() * 40}px`;
+        document.body.appendChild(llamaDiv);
+        
+        const duracion = 0.6 + Math.random() * 0.6;
+        llamaDiv.style.animation = `subirYArder ${duracion}s ease-out forwards`;
+        
+        setTimeout(() => llamaDiv.remove(), duracion * 1000);
+    }
+    
+    function generarChispa(x, y) {
+        const chispa = document.createElement('div');
+        chispa.className = 'chispa';
+        chispa.style.left = `${x}px`;
+        chispa.style.top = `${y}px`;
+        document.body.appendChild(chispa);
+        setTimeout(() => chispa.remove(), 600);
+    }
+    
+    function generarChispasMultiples(elemento, cantidad) {
+        const rect = elemento.getBoundingClientRect();
+        for(let i=0; i<cantidad; i++) {
+            generarChispa(rect.left + Math.random() * rect.width, rect.top + Math.random() * rect.height);
+        }
+    }
+    
+    function generarHumoDenso(elemento, cantidad) {
+        const rect = elemento.getBoundingClientRect();
+        for(let i=0; i<cantidad; i++) {
+            const humoDiv = document.createElement('div');
+            humoDiv.className = 'humo';
+            const size = 40 + Math.random() * 60;
+            humoDiv.style.width = `${size}px`;
+            humoDiv.style.height = `${size}px`;
+            humoDiv.style.left = `${rect.left + Math.random() * rect.width - size/2}px`;
+            humoDiv.style.top = `${rect.top + rect.height/2}px`;
+            document.body.appendChild(humoDiv);
+            setTimeout(() => humoDiv.remove(), 1200);
+        }
+    }
+    
+    function mostrarMensajeCeniza(nombre) {
+        const fogataRect = fogata.getBoundingClientRect();
+        const ceniza = document.createElement('div');
+        ceniza.className = 'ceniza-msg';
+        const nombreCorto = nombre.length > 25 ? nombre.slice(0, 22)+'...' : nombre;
+        ceniza.innerText = `🔥 ${nombreCorto} → cenizas 🔥`;
+        ceniza.style.left = `${fogataRect.left + fogataRect.width/2 - 100}px`;
+        ceniza.style.top = `${fogataRect.top}px`;
+        document.body.appendChild(ceniza);
+        setTimeout(() => ceniza.remove(), 900);
+    }
+    
+    function generarExplosionFuegoDuck() {
+        for(let i=0; i<15; i++) generarLlamaDuck(fogata);
+    }
+</script>
+</body>
+</html>
+```
